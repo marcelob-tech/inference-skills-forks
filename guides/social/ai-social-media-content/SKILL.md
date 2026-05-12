@@ -123,8 +123,10 @@ belt app run google/veo-3-1 --input '{
 ### Product Showcase
 
 ```bash
-belt app run bytedance/seedance-1-5-pro --input '{
-  "prompt": "Product unboxing aesthetic, sleek packaging reveal, soft lighting, premium feel, satisfying unwrap, vertical 9:16"
+belt app run bytedance/seedance-2-0 --input '{
+  "prompt": "Product unboxing aesthetic, sleek packaging reveal, soft lighting, premium feel, satisfying unwrap",
+  "ratio": "9:16",
+  "generate_audio": true
 }'
 ```
 

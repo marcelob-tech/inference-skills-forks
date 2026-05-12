@@ -1,12 +1,12 @@
 ---
 name: seedance
-description: "Generate videos with ByteDance Seedance 2.0 models via inference.sh CLI. Models: Seedance 2 T2V, Seedance 2 I2V, Seedance 2 R2V. Capabilities: text-to-video, image-to-video, reference-to-video, synchronized audio, quality/fast modes, 480p/720p. Use for: social media videos, music videos, product demos, animated content, AI video with sound. Triggers: seedance, seedance 2, bytedance video, seedance t2v, seedance i2v, seedance r2v, video with audio, seedance 2.0, bytedance seedance"
+description: "Generate videos with ByteDance Seedance 2.0 via inference.sh CLI. Unified model for text-to-video, image-to-video, and reference-to-video with synchronized audio, up to 1080p, 4-15s duration. Pro and Fast variants. Use for: social media videos, music videos, product demos, animated content, AI video with sound. Triggers: seedance, seedance 2, bytedance video, seedance t2v, seedance i2v, seedance r2v, video with audio, seedance 2.0, bytedance seedance"
 allowed-tools: Bash(belt *)
 ---
 
 # Seedance 2.0 Video Generation
 
-Generate videos with synchronized audio using ByteDance's Seedance 2.0 models via [inference.sh](https://inference.sh) CLI.
+Generate videos with synchronized audio using ByteDance's Seedance 2.0 via [inference.sh](https://inference.sh) CLI.
 
 ## Quick Start
 
@@ -15,42 +15,40 @@ Generate videos with synchronized audio using ByteDance's Seedance 2.0 models vi
 ```bash
 belt login
 
-belt app run falai/seedance-2-t2v --input '{
+belt app run bytedance/seedance-2-0 --input '{
   "prompt": "a jazz band performing in a dimly lit club",
   "generate_audio": true
 }'
 ```
 
 
-## Seedance 2.0 Models
+## Models
 
 | Model | App ID | Best For |
 |-------|--------|----------|
-| Seedance 2 T2V | `falai/seedance-2-t2v` | Text-to-video with audio |
-| Seedance 2 I2V | `falai/seedance-2-i2v` | Animate images with audio |
-| Seedance 2 R2V | `falai/seedance-2-r2v` | Reference images/videos/audio to video |
+| Seedance 2.0 | `bytedance/seedance-2-0` | Best quality, up to 1080p, text/image/reference-to-video |
+| Seedance 2.0 Fast | `bytedance/seedance-2-0-fast` | Faster generation, same capabilities |
 
-All models support **quality** and **fast** modes, 480p/720p resolution, and synchronized audio generation.
+Both models support text-to-video, image-to-video, reference-to-video, up to 1080p resolution, 4-15s duration, and synchronized audio generation.
 
 ## Examples
 
 ### Text-to-Video with Audio
 
 ```bash
-belt app run falai/seedance-2-t2v --input '{
+belt app run bytedance/seedance-2-0 --input '{
   "prompt": "ocean waves crashing on rocks during a storm, dramatic cinematic shot",
   "generate_audio": true,
   "duration": 10,
-  "aspect_ratio": "16:9"
+  "ratio": "16:9"
 }'
 ```
 
 ### Fast Mode (Cheaper)
 
 ```bash
-belt app run falai/seedance-2-t2v --input '{
+belt app run bytedance/seedance-2-0-fast --input '{
   "prompt": "a butterfly landing on a flower in slow motion",
-  "mode": "fast",
   "generate_audio": true
 }'
 ```
@@ -60,7 +58,7 @@ belt app run falai/seedance-2-t2v --input '{
 Animate a still image into a video:
 
 ```bash
-belt app run falai/seedance-2-i2v --input '{
+belt app run bytedance/seedance-2-0 --input '{
   "image": "https://your-image.jpg",
   "prompt": "gentle camera movement, leaves rustling in the wind",
   "generate_audio": true
@@ -70,7 +68,7 @@ belt app run falai/seedance-2-i2v --input '{
 ### Image-to-Video with Start and End Frames
 
 ```bash
-belt app run falai/seedance-2-i2v --input '{
+belt app run bytedance/seedance-2-0 --input '{
   "image": "https://start-frame.jpg",
   "end_image": "https://end-frame.jpg",
   "prompt": "smooth transition between scenes",
@@ -80,12 +78,12 @@ belt app run falai/seedance-2-i2v --input '{
 
 ### Reference-to-Video
 
-Use reference images, videos, or audio in your prompt with `@Image1`, `@Video1`, `@Audio1` placeholders:
+Use reference images, videos, or audio to guide generation:
 
 ```bash
-belt app run falai/seedance-2-r2v --input '{
-  "prompt": "A person who looks like @Image1 is walking through a garden",
-  "images": ["https://portrait.jpg"],
+belt app run bytedance/seedance-2-0 --input '{
+  "prompt": "A person who looks like the reference walking through a garden",
+  "reference_image": "https://portrait.jpg",
   "generate_audio": true
 }'
 ```
@@ -93,9 +91,10 @@ belt app run falai/seedance-2-r2v --input '{
 ### Multi-Reference
 
 ```bash
-belt app run falai/seedance-2-r2v --input '{
-  "prompt": "@Image1 and @Image2 are having a conversation at a cafe",
-  "images": ["https://person1.jpg", "https://person2.jpg"],
+belt app run bytedance/seedance-2-0 --input '{
+  "prompt": "Two people having a conversation at a cafe",
+  "reference_image": "https://person1.jpg",
+  "reference_image_2": "https://person2.jpg",
   "generate_audio": true
 }'
 ```
@@ -103,51 +102,49 @@ belt app run falai/seedance-2-r2v --input '{
 ### Reference with Audio
 
 ```bash
-belt app run falai/seedance-2-r2v --input '{
-  "prompt": "A musician who looks like @Image1 is performing @Audio1",
-  "images": ["https://musician.jpg"],
-  "audios": ["https://music.mp3"],
+belt app run bytedance/seedance-2-0 --input '{
+  "prompt": "A musician performing a song",
+  "reference_image": "https://musician.jpg",
+  "reference_audio": "https://music.mp3",
+  "generate_audio": true
+}'
+```
+
+### Reference with Video
+
+```bash
+belt app run bytedance/seedance-2-0 --input '{
+  "prompt": "Recreate this scene in a different setting",
+  "reference_video": "https://reference-clip.mp4",
   "generate_audio": true
 }'
 ```
 
 ## Pricing
 
-| Mode | 720p | 480p |
-|------|------|------|
-| Quality | ~$0.30/sec | ~$0.13/sec |
-| Fast | ~$0.24/sec | ~$0.11/sec |
+| Model | Pricing |
+|-------|---------|
+| Seedance 2.0 | $4.30-$7.70/M tokens (varies by resolution and input type) |
+| Seedance 2.0 Fast | $3.30-$5.60/1K tokens |
 
-## Parameters (T2V)
+## Parameters
 
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
 | `prompt` | string | required | Text description of the video |
 | `generate_audio` | boolean | false | Generate synchronized audio |
-| `duration` | enum | - | Duration in seconds (4–10) |
-| `aspect_ratio` | enum | - | 16:9, 9:16, 1:1, 4:3, 3:4 |
-| `resolution` | enum | - | 480p or 720p |
-| `mode` | enum | quality | quality or fast |
+| `duration` | integer | - | Duration in seconds (4-15), or -1 for auto |
+| `ratio` | enum | - | 16:9, 9:16, 1:1, 4:3, 3:4, or adaptive |
+| `resolution` | enum | - | Up to 1080p |
 | `seed` | integer | random | Reproducible generation |
-
-## Parameters (I2V)
-
-Same as T2V plus:
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `image` | file | Starting frame image (required) |
-| `end_image` | file | Optional ending frame |
-
-## Parameters (R2V)
-
-Same as T2V plus:
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `images` | array | Reference images (@Image1, @Image2, ...) |
-| `videos` | array | Reference videos (@Video1, @Video2, ...) |
-| `audios` | array | Reference audio (@Audio1, @Audio2, ...) |
+| `watermark` | boolean | - | Add watermark to output |
+| `image` | file | - | First-frame image for image-to-video |
+| `end_image` | file | - | Last-frame image for first+last frame control |
+| `reference_image` | file | - | Reference image for reference-to-video |
+| `reference_image_2` | file | - | Second reference image |
+| `reference_image_3` | file | - | Third reference image |
+| `reference_video` | file | - | Reference video |
+| `reference_audio` | file | - | Reference audio |
 
 ## Search Seedance Apps
 

@@ -36,8 +36,8 @@ belt app run google/veo-3-1-fast --input '{"prompt": "drone shot flying over a f
 | **P-Video** | `pruna/p-video` | Fast, economical, with audio support |
 | **WAN-T2V** | `pruna/wan-t2v` | Economical 480p/720p |
 | Grok Video | `xai/grok-imagine-video` | xAI, configurable duration |
-| **Seedance 2 T2V** | `falai/seedance-2-t2v` | Text-to-video with sync audio |
-| **Seedance 2 R2V** | `falai/seedance-2-r2v` | Reference images/videos/audio to video |
+| **Seedance 2.0** | `bytedance/seedance-2-0` | Text/image/ref-to-video with sync audio, up to 1080p |
+| **Seedance 2.0 Fast** | `bytedance/seedance-2-0-fast` | Fast variant, same capabilities |
 | **HappyHorse T2V** | `alibaba/happyhorse-1-0-t2v` | Physically realistic, up to 15s |
 
 ### Image-to-Video
@@ -48,7 +48,8 @@ belt app run google/veo-3-1-fast --input '{"prompt": "drone shot flying over a f
 | Wan 2.5 I2V | `falai/wan-2-5-i2v` | High quality i2v |
 | **WAN-I2V** | `pruna/wan-i2v` | Economical 480p/720p |
 | **P-Video** | `pruna/p-video` | Fast i2v with audio |
-| **Seedance 2 I2V** | `falai/seedance-2-i2v` | Animate images with sync audio |
+| **Seedance 2.0** | `bytedance/seedance-2-0` | Animate images with sync audio, up to 1080p |
+| **Seedance 2.0 Fast** | `bytedance/seedance-2-0-fast` | Fast variant, same capabilities |
 | **HappyHorse I2V** | `alibaba/happyhorse-1-0-i2v` | Animate images, up to 1080P/15s |
 | **HappyHorse R2V** | `alibaba/happyhorse-1-0-r2v` | Character-preserving from references |
 
@@ -129,19 +130,29 @@ belt app run falai/fabric-1-0 --input '{
 ### Seedance 2.0 Text-to-Video with Audio
 
 ```bash
-belt app run falai/seedance-2-t2v --input '{
+belt app run bytedance/seedance-2-0 --input '{
   "prompt": "a jazz band performing in a dimly lit club",
   "generate_audio": true,
   "duration": 10
 }'
 ```
 
+### Seedance 2.0 Image-to-Video
+
+```bash
+belt app run bytedance/seedance-2-0 --input '{
+  "image": "https://your-image.jpg",
+  "prompt": "gentle camera movement, leaves rustling in the wind",
+  "generate_audio": true
+}'
+```
+
 ### Seedance 2.0 Reference-to-Video
 
 ```bash
-belt app run falai/seedance-2-r2v --input '{
-  "prompt": "A person who looks like @Image1 walking through a garden",
-  "images": ["https://portrait.jpg"],
+belt app run bytedance/seedance-2-0 --input '{
+  "prompt": "A person who looks like the reference walking through a garden",
+  "reference_image": "https://portrait.jpg",
   "generate_audio": true
 }'
 ```
