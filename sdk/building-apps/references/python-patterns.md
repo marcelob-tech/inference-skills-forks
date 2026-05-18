@@ -125,22 +125,31 @@ class App(BaseApp):
 
 ### Moving Models to GPU
 
-**Never rely on `device_map` kwargs** — not all libraries support it, and it silently falls back to CPU. Always load then `.to()` explicitly:
+**For large models (>1B params), use `device_map`** — it uses Accelerate's Big Model Inference to stream weights directly from disk to GPU via mmap, skipping CPU materialization entirely. This is dramatically faster than `from_pretrained` + `.to()`:
 
 ```python
-# WRONG — may silently stay on CPU
-self.model = SomeModel.from_pretrained("org/model", device_map=device)
+# FAST — streams disk → GPU directly, skips CPU (use for large models)
+from accelerate import Accelerator
+device = Accelerator().device
+self.model = AutoModel.from_pretrained("org/model", dtype=torch.bfloat16, device_map=str(device))
 
-# RIGHT — guaranteed to move to device
-self.model = SomeModel.from_pretrained("org/model")
+# SLOW — loads to CPU first, then copies to GPU (fine for small models)
+self.model = AutoModel.from_pretrained("org/model")
 self.model = self.model.to(device=self.device, dtype=torch.float16)
 ```
+
+**Why it matters:** Without `device_map`, PyTorch mmap's safetensors into CPU page cache, materializes every tensor, then copies to GPU via `.to()`. For a 27B model this takes ~2 minutes. With `device_map`, Accelerate creates a meta-device skeleton and streams each shard directly to GPU — same model loads in ~18 seconds (7x faster).
+
+**Note:** `device_map` requires `accelerate` installed. For libraries that don't support `device_map` (custom model classes, some older libraries), fall back to `from_pretrained` + `.to()`.
+
+**SentenceTransformer caveat:** SentenceTransformer defers `.to(device)` until the first `encode()` call, not during `__init__`. For small models this is fine. For large models, prefer the raw transformers path with `device_map`.
 
 ### Checklist for GPU Apps
 
 - `accelerate` in `requirements.txt`
 - `Accelerator().device` for device detection
-- Explicit `.to(device, dtype)` after model load
+- `device_map=str(device)` for large models (>1B params)
+- Explicit `.to(device, dtype)` for small models or unsupported libraries
 - `inf.yml` has `resources.gpu.count: 1` and appropriate `vram`
 
 ## Optimizing Performance

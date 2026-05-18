@@ -356,9 +356,13 @@ accelerator = Accelerator()
 self.device = accelerator.device
 ```
 
-**Always `.to(device)` explicitly** — don't rely on `device_map` kwargs, they silently fall back to CPU if the library doesn't support them:
+**For large models (>1B params), use `device_map`** to stream weights directly from disk to GPU, skipping CPU entirely. This is 7x faster than `from_pretrained` + `.to()` for large models:
 
 ```python
+# Large models — streams disk → GPU directly
+self.model = AutoModel.from_pretrained("org/model", dtype=torch.bfloat16, device_map=str(self.device))
+
+# Small models or unsupported libraries — load then move
 self.model = SomeModel.from_pretrained("org/model")
 self.model = self.model.to(device=self.device, dtype=torch.float16)
 ```
